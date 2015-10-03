@@ -1,3 +1,9 @@
+mx-user (15.10mx14) mx; urgency=medium
+
+  * fixed delete user function
+
+ -- Adrian <adrian@mxlinux.org>  Sat, 03 Oct 2015 11:46:47 -0400
+
 mx-user (15.6mx14) mx; urgency=medium
 
   * changed documentation URL
