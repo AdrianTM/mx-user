@@ -1,3 +1,11 @@
+mx-user (26.03) mx; urgency=medium
+
+  * Show help and license inside the application, including French help content
+  * Replace the shell helper with a binary privilege helper
+  * Fix follow-up issues in the internal helper and user rename handling
+
+ -- Adrian <adrian@mxlinux.org>  Sat, 14 Mar 2026 15:18:46 -0400
+
 mx-user (25.7) mx; urgency=medium
 
   * Add kill command for processes run by username that is being renamed
