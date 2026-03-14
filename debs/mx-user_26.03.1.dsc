@@ -15,20 +15,20 @@ Build-Depends: debhelper-compat (= 12), cmake (>= 3.16), ninja-build, qt6-base-d
 Package-List:
  mx-user deb admin optional arch=any
 Checksums-Sha1:
- 63e426393ee9a8043a5826ce3b5156403b7b8698 224156 mx-user_26.03.1.tar.xz
+ 37c8a3b4612dfb3eaa7c6870cc6588e262f5fb74 224152 mx-user_26.03.1.tar.xz
 Checksums-Sha256:
- fd99f8818cc3a96746db54c8e9ca4548f06215d93dfef8c3903b5b2c9814e143 224156 mx-user_26.03.1.tar.xz
+ 331a8632b5d83c699104afbc805ed060a835d3200810872ed5d03308404798bf 224152 mx-user_26.03.1.tar.xz
 Files:
- bf67942b361a2f00c21175f3e9be9446 224156 mx-user_26.03.1.tar.xz
+ 877cda09dd57a9ff52bea719d2ee18b8 224152 mx-user_26.03.1.tar.xz
 
 -----BEGIN PGP SIGNATURE-----
 
-iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmm11HkTHGFkcmlhbkBt
-eGxpbnV4Lm9yZwAKCRBwk4x4BnnumNxoB/92lJob4Lt9oKDQWl3SIyWdt3SD9ZbX
-FCCt6wpGOXQUQvh1vzKzOMqHjrGgBAwkq0t2EsUJomR+QeL0cB7x7QR76hVZ+kEO
-D1fftb31em536HHAKXKZcG8+Y6eo+qdISU/ptlUP9ygtvYQr/0k/7D68l5TOmSPX
-JM6TDEhvqvIKdu3g2k8HEHOJPOUYHUIFz88VuLl4SR0WySdGTIQUgH9PLK+96Swp
-fik6DKDXGPeUDP6nbWDMmp1TdZ9NITSfuTbdsjZI/4ry9BkYj9bFpr9ypVOY7WsS
-Wnc0UK3B5AnQX2CezevvTVm+wvl+V33AKWKS2e+WYaBtexH5NAFMH9ze
-=gAe4
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmm11mcTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumErkCACYfi+6pObIhGvwtKMTE4TQD5yQXmzP
+pU1ACgbDFtxyizxvwZANuZjEpChtPOadHx6RoPbfZz9rxI1YX2GsmO9gQcWm757D
+kOSGAPjJzyL5r0NR3v71QqoJ1hKBPGoe4+UpQXo9NnElt/vAjXKeH+gGfjr1vIoV
+C4cPsh3rnZIWAa/uvA2wjaXbZ5y5UflxCa0X5vOuAQSiNsPI6CbkYubT0lwQTV8f
+J1izP9FRBG0mbvHo/JCWWGweHzavwBsEk6SWljsyHkvKFrE8ZqnD+tA1TjbCefLo
+fmnnUNUPPzz4AQ0ZXRRh0HTc4VQ3kYFO1YdkYWVn/bJFGtFzknecK+ox
+=7ySQ
 -----END PGP SIGNATURE-----
