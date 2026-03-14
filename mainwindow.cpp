@@ -1195,15 +1195,14 @@ void MainWindow::buttonAbout_clicked()
 
 void MainWindow::buttonHelp_clicked()
 {
-    QLocale locale;
-    const QString lang = locale.bcp47Name();
-
-    QString url = "/usr/share/doc/mx-user/mx-user.html";
+    const QString lang = QLocale().bcp47Name();
+    QString helpPath = "/usr/share/doc/mx-user/mx-user.html";
 
     if (lang.startsWith("fr")) {
-        url = "https://mxlinux.org/wiki/help-files/help-gestionnaire-des-utilisateurs";
+        helpPath = "/usr/share/doc/mx-user/mx-user_fr.html";
     }
-    displayDoc(url, tr("%1 Help").arg(windowTitle()));
+
+    displayHelpDoc(helpPath, tr("%1 Help").arg(windowTitle()));
 }
 
 void MainWindow::comboChangePass_activated(const QString & /*unused*/)

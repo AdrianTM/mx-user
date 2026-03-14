@@ -13,7 +13,6 @@ Package: mx-user
 Architecture: any
 Depends: adduser,
          libzxcvbn0,
-         mx-viewer | xdg-utils,
          rsync,
          ${misc:Depends},
          ${shlibs:Depends}
