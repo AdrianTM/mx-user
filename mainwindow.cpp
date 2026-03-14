@@ -437,15 +437,8 @@ void MainWindow::applyAdd()
     if (hasAdduser) {
         const QString addUserHelp = shell->getOutAsRoot("adduser", {"--help"}, QuietMode::Yes);
         QString commentOption = addUserHelp.contains("--comment") ? QStringLiteral("--comment") : QStringLiteral("--gecos");
-        if (commentOption != QLatin1String("--comment")) {
-            commentOption = QStringLiteral("--gecos");
-        }
-
         QString allowBadNames
             = addUserHelp.contains("--allow-bad-names") ? QStringLiteral("--allow-bad-names") : QStringLiteral("--force-badname");
-        if (allowBadNames != QLatin1String("--allow-bad-names")) {
-            allowBadNames = QStringLiteral("--force-badname");
-        }
 
         success = shell->procAsRoot("adduser",
                                     {"--disabled-login", allowBadNames, "--shell", dshell, commentOption,
@@ -726,7 +719,7 @@ void MainWindow::applyRename()
     QString escapedOld = QRegularExpression::escape(old_name);
     shell->procAsRoot("sed",
                       {"-i", "-r",
-                       QString("/^%1:/s/%2%3%4/\\\\1%5\\\\2/g")
+                       QString("/^%1:/s/%2%3%4/\\1%5\\2/g")
                            .arg(escapedNew, StartRex, escapedOld, EndRex, escapedNew),
                        "/etc/passwd"});
 

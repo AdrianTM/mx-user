@@ -30,6 +30,7 @@ Cmd::Cmd(QObject *parent)
 
     connect(this, &Cmd::readyReadStandardOutput, this, &Cmd::handleStandardOutput);
     connect(this, &Cmd::readyReadStandardError, this, &Cmd::handleStandardError);
+    connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &Cmd::done);
 }
 
 void Cmd::handleStandardOutput()
@@ -90,7 +91,6 @@ bool Cmd::proc(const QString &cmd, const QStringList &args, QString *output, con
     }
 
     outBuffer.clear();
-    connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &Cmd::done);
     if (state() != QProcess::NotRunning) {
         qDebug() << "Process already running:" << program() << arguments();
         return false;
@@ -140,7 +140,6 @@ void Cmd::handleElevationError()
                               tr("This operation requires administrator privileges. Please restart the application "
                                  "and enter your password when prompted."));
     }
-    QTimer::singleShot(0, qApp, &QApplication::quit);
     exit(EXIT_FAILURE);
 }
 
