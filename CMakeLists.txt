@@ -138,6 +138,10 @@ add_executable(mx-user
     ${RESOURCE_FILES}
 )
 
+add_executable(helper
+    helper.cpp
+)
+
 # Find additional libraries
 find_library(CRYPT_LIB crypt REQUIRED)
 
@@ -157,6 +161,10 @@ target_link_libraries(mx-user
     Qt6::Gui
     Qt6::Widgets
     ${CRYPT_LIB}
+)
+
+target_link_libraries(helper
+    Qt6::Core
 )
 
 if(ENABLE_ZXCVBN)
@@ -182,11 +190,22 @@ target_compile_options(mx-user PRIVATE
     -Werror
 )
 
+target_compile_options(helper PRIVATE
+    -Wpedantic
+    -pedantic
+    -Werror=return-type
+    -Werror=switch
+    -Werror=uninitialized
+    -Werror
+)
+
 # Add compiler-specific flags
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR USE_CLANG)
     target_compile_options(mx-user PRIVATE -Werror=return-stack-address)
+    target_compile_options(helper PRIVATE -Werror=return-stack-address)
 else()
     target_compile_options(mx-user PRIVATE -Werror=return-local-addr)
+    target_compile_options(helper PRIVATE -Werror=return-local-addr)
 endif()
 
 # Set compile definitions
@@ -196,18 +215,29 @@ target_compile_definitions(mx-user PRIVATE
     VERSION="${PROJECT_VERSION_FULL}"
 )
 
+target_compile_definitions(helper PRIVATE
+    QT_DEPRECATED_WARNINGS
+    QT_DISABLE_DEPRECATED_BEFORE=0x060000
+)
+
 # Release-specific optimizations
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_definitions(mx-user PRIVATE NDEBUG)
+    target_compile_definitions(helper PRIVATE NDEBUG)
     target_compile_options(mx-user PRIVATE -O3)
+    target_compile_options(helper PRIVATE -O3)
 
     # Add LTO - different flags for different compilers
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR USE_CLANG)
         target_compile_options(mx-user PRIVATE -flto=thin)
         target_link_options(mx-user PRIVATE -flto=thin)
+        target_compile_options(helper PRIVATE -flto=thin)
+        target_link_options(helper PRIVATE -flto=thin)
     else()
         target_compile_options(mx-user PRIVATE -flto=auto)
         target_link_options(mx-user PRIVATE -flto=auto)
+        target_compile_options(helper PRIVATE -flto=auto)
+        target_link_options(helper PRIVATE -flto=auto)
     endif()
 endif()
 
