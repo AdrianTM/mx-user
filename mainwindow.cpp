@@ -839,8 +839,17 @@ void MainWindow::setConnections()
     connect(buttonApply, &QPushButton::clicked, this, &MainWindow::buttonApply_clicked);
     connect(buttonCancel, &QPushButton::clicked, this, &MainWindow::buttonCancel_clicked);
     connect(buttonHelp, &QPushButton::clicked, this, &MainWindow::buttonHelp_clicked);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     connect(checkGroups, &QCheckBox::checkStateChanged, this, &MainWindow::checkGroups_stateChanged);
     connect(checkMozilla, &QCheckBox::checkStateChanged, this, &MainWindow::checkMozilla_stateChanged);
+#else
+    connect(checkGroups, &QCheckBox::stateChanged, this, [this](int state) {
+        checkGroups_stateChanged(static_cast<Qt::CheckState>(state));
+    });
+    connect(checkMozilla, &QCheckBox::stateChanged, this, [this](int state) {
+        checkMozilla_stateChanged(static_cast<Qt::CheckState>(state));
+    });
+#endif
     connect(comboChangePass, &QComboBox::textActivated, this, &MainWindow::comboChangePass_activated);
     connect(comboDeleteUser, &QComboBox::textActivated, this, &MainWindow::comboDeleteUser_activated);
     connect(comboRenameUser, &QComboBox::textActivated, this, &MainWindow::comboRenameUser_activated);
