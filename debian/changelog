@@ -1,3 +1,9 @@
+mx-user (26.03.5) mx; urgency=medium
+
+  * Fix BUILD_FOR_ARCH check
+
+ -- Adrian <adrian@mxlinux.org>  Sun, 15 Mar 2026 17:22:21 -0400
+
 mx-user (26.03.4) mx; urgency=medium
 
   * Add /sbin backup location for commands: fix for MX23
