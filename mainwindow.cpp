@@ -1092,7 +1092,7 @@ QString MainWindow::defaultShellPath() const
         return shellPath;
     };
 
-#ifdef BUILD_FOR_ARCH
+#if BUILD_FOR_ARCH
     // For Arch Linux, check /etc/default/useradd first
     QFile userAddDefault("/etc/default/useradd");
     if (userAddDefault.open(QIODevice::ReadOnly | QIODevice::Text)) {
