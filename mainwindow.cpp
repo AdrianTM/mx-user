@@ -1028,7 +1028,16 @@ void MainWindow::buildListGroupsToRemove()
 
 bool MainWindow::commandExists(const QString &command) const
 {
-    return !QStandardPaths::findExecutable(command).isEmpty();
+    if (!QStandardPaths::findExecutable(command).isEmpty()) {
+        return true;
+    }
+    // Fallback: check sbin paths which may not be in $PATH when launched from desktop menu
+    for (const QString &path : {"/usr/sbin/", "/sbin/"}) {
+        if (QFileInfo::exists(path + command)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 QString MainWindow::currentLogname() const
