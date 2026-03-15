@@ -57,25 +57,25 @@ void printError(const QString &message)
 [[nodiscard]] const QHash<QString, QStringList> &allowedCommands()
 {
     static const QHash<QString, QStringList> commands {
-        {"addgroup", {"/usr/sbin/addgroup", "/usr/bin/addgroup"}},
-        {"adduser", {"/usr/sbin/adduser", "/usr/bin/adduser"}},
+        {"addgroup", {"/usr/sbin/addgroup", "/sbin/addgroup", "/usr/bin/addgroup"}},
+        {"adduser", {"/usr/sbin/adduser", "/sbin/adduser", "/usr/bin/adduser"}},
         {"chown", {"/usr/bin/chown", "/bin/chown"}},
-        {"delgroup", {"/usr/sbin/delgroup", "/usr/bin/delgroup"}},
-        {"deluser", {"/usr/sbin/deluser", "/usr/bin/deluser"}},
+        {"delgroup", {"/usr/sbin/delgroup", "/sbin/delgroup", "/usr/bin/delgroup"}},
+        {"deluser", {"/usr/sbin/deluser", "/sbin/deluser", "/usr/bin/deluser"}},
         {"find", {"/usr/bin/find", "/bin/find"}},
-        {"gpasswd", {"/usr/bin/gpasswd", "/bin/gpasswd"}},
-        {"groupadd", {"/usr/sbin/groupadd", "/usr/bin/groupadd"}},
-        {"groupdel", {"/usr/sbin/groupdel", "/usr/bin/groupdel"}},
-        {"groupmod", {"/usr/sbin/groupmod", "/usr/bin/groupmod"}},
+        {"gpasswd", {"/usr/bin/gpasswd", "/sbin/gpasswd", "/bin/gpasswd"}},
+        {"groupadd", {"/usr/sbin/groupadd", "/sbin/groupadd", "/usr/bin/groupadd"}},
+        {"groupdel", {"/usr/sbin/groupdel", "/sbin/groupdel", "/usr/bin/groupdel"}},
+        {"groupmod", {"/usr/sbin/groupmod", "/sbin/groupmod", "/usr/bin/groupmod"}},
         {"killall", {"/usr/bin/killall", "/bin/killall"}},
-        {"passwd", {"/usr/bin/passwd", "/bin/passwd"}},
+        {"passwd", {"/usr/bin/passwd", "/sbin/passwd", "/bin/passwd"}},
         {"rm", {"/usr/bin/rm", "/bin/rm"}},
         {"rsync", {"/usr/bin/rsync"}},
         {"sed", {"/usr/bin/sed", "/bin/sed"}},
         {"timeout", {"/usr/bin/timeout", "/bin/timeout"}},
-        {"useradd", {"/usr/sbin/useradd", "/usr/bin/useradd"}},
-        {"userdel", {"/usr/sbin/userdel", "/usr/bin/userdel"}},
-        {"usermod", {"/usr/sbin/usermod", "/usr/bin/usermod"}},
+        {"useradd", {"/usr/sbin/useradd", "/sbin/useradd", "/usr/bin/useradd"}},
+        {"userdel", {"/usr/sbin/userdel", "/sbin/userdel", "/usr/bin/userdel"}},
+        {"usermod", {"/usr/sbin/usermod", "/sbin/usermod", "/usr/bin/usermod"}},
     };
     return commands;
 }
