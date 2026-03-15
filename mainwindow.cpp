@@ -1079,6 +1079,12 @@ QString MainWindow::defaultShellPath() const
     auto normalizedShell = [](QString shellPath) {
         if (shellPath.startsWith("/bin/")) {
             shellPath.replace(0, 5, "/usr/bin/");
+        } else if (shellPath.startsWith("/sbin/")) {
+            shellPath.replace(0, 6, "/usr/sbin/");
+        }
+        // Prefer bash over sh
+        if (shellPath.endsWith("/sh") && QFile::exists("/usr/bin/bash")) {
+            shellPath = "/usr/bin/bash";
         }
         if (!QFile::exists(shellPath)) {
             shellPath = "/usr/bin/bash";

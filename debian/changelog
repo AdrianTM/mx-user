@@ -1,7 +1,8 @@
-mx-user (26.03.3) mx; urgency=medium
+mx-user (26.03.4) mx; urgency=medium
 
   * Add /sbin backup location for commands: fix for MX23
   * Fix for /sbin path missing when launching tool from menu
+  * Fix shell for new user
 
  -- Adrian <adrian@mxlinux.org>  Sun, 15 Mar 2026 13:31:30 -0400
 
