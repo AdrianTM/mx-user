@@ -1,3 +1,9 @@
+mx-user (26.03.2) mx; urgency=medium
+
+  * Add /sbin backup location for commands: fix for MX23
+
+ -- Adrian <adrian@mxlinux.org>  Sun, 15 Mar 2026 13:31:30 -0400
+
 mx-user (26.03.1) mx; urgency=medium
 
   * Show help and license inside the application, including French help content
