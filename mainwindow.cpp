@@ -94,7 +94,9 @@ void MainWindow::refresh()
         refreshDelete();
         refreshChangePass();
         refreshRename();
-        users = shell->getOut("lslogins --noheadings -u -o user | grep -vw root", QuietMode::Yes).trimmed().split('\n');
+        users = shell->getOut("lslogins --noheadings -u -o user", QuietMode::Yes)
+                    .split('\n', Qt::SkipEmptyParts);
+        users.removeAll(QStringLiteral("root"));
         users.sort();
         comboRenameUser->addItems(users);
         comboChangePass->addItems(users);
@@ -967,7 +969,17 @@ void MainWindow::buildListGroups()
 {
     listGroups->clear();
     // Read /etc/group and add all the groups in the listGroups
-    QStringList groups = shell->getOut("cat /etc/group | cut -f 1 -d :").trimmed().split('\n');
+    QStringList groups;
+    QFile groupFile(QStringLiteral("/etc/group"));
+    if (groupFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        while (!groupFile.atEnd()) {
+            const QString line = QString::fromUtf8(groupFile.readLine());
+            const QString name = line.section(':', 0, 0).trimmed();
+            if (!name.isEmpty()) {
+                groups << name;
+            }
+        }
+    }
     groups.sort();
     for (const QString &group : groups) {
         auto *item = new QListWidgetItem;
