@@ -102,6 +102,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+set(HELPER_INSTALL_DIR "/usr/libexec/mx-user" CACHE PATH
+    "Absolute install directory for the privileged helper binary")
+if(NOT IS_ABSOLUTE "${HELPER_INSTALL_DIR}")
+    message(FATAL_ERROR "HELPER_INSTALL_DIR must be an absolute path, got: ${HELPER_INSTALL_DIR}")
+endif()
+set(HELPER_PATH "${HELPER_INSTALL_DIR}/helper")
+configure_file(scripts/org.mxlinux.pkexec.mx-user-helper.policy.in ${CMAKE_BINARY_DIR}/org.mxlinux.pkexec.mx-user-helper.policy @ONLY)
+
 # Define source files
 set(SOURCES
     main.cpp
@@ -211,6 +219,7 @@ endif()
 
 # Set compile definitions
 target_compile_definitions(mx-user PRIVATE
+    HELPER_PATH="${HELPER_PATH}"
     QT_DEPRECATED_WARNINGS
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
     VERSION="${PROJECT_VERSION_FULL}"
@@ -259,4 +268,8 @@ set_target_properties(mx-user PROPERTIES
 # Other files are handled by debian/install
 install(TARGETS mx-user
     RUNTIME DESTINATION bin
+)
+
+install(TARGETS helper
+    RUNTIME DESTINATION ${HELPER_INSTALL_DIR}
 )
