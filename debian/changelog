@@ -1,3 +1,12 @@
+mx-user (26.07.1) mx; urgency=medium
+
+  * Prevent copying a desktop profile into the source user or the user currently
+    logged in, and explain why the destination is not allowed.
+  * Place MX User Manager in the correct desktop menu category.
+  * Add a manual page describing the user and group management features.
+
+ -- Adrian <adrian@mxlinux.org>  Tue, 28 Jul 2026 13:15:46 -0400
+
 mx-user (26.07) mx; urgency=medium
 
   * Lock the main window to a fixed height so the layout stays consistent
