@@ -1,5 +1,5 @@
 help/*				usr/share/doc/mx-user
-icons/mx-user.png		usr/share/icons/hicolor/256x256/apps
+icons/mx-user.png		usr/share/icons/hicolor/64x64/apps
 icons/mx-user.svg		usr/share/icons/hicolor/scalable/apps
 mx-user.desktop			usr/share/applications
 obj-*/*.policy		usr/share/polkit-1/actions
