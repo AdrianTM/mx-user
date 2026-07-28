@@ -44,6 +44,7 @@ package() {
         "${pkgdir}/usr/share/polkit-1/actions/org.mxlinux.pkexec.mx-user-helper.policy"
 
     install -Dm644 mx-user.desktop "${pkgdir}/usr/share/applications/mx-user.desktop"
+    install -Dm644 debian/mx-user.1 "${pkgdir}/usr/share/man/man1/mx-user.1"
 
     install -Dm644 icons/mx-user.png "${pkgdir}/usr/share/icons/hicolor/256x256/apps/mx-user.png"
     install -Dm644 icons/mx-user.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/mx-user.svg"
