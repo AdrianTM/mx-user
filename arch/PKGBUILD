@@ -11,7 +11,7 @@
 
 pkgname=mx-user
 pkgver=26.07.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple user configuration tool"
 arch=('x86_64')
 url="https://github.com/MX-Linux/mx-user"
