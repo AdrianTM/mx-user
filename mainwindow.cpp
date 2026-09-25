@@ -30,8 +30,14 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QScreen>
+#include <QSet>
 #include <QStandardPaths>
 #include <QTextEdit>
+
+#include <grp.h>
+#include <pwd.h>
+
+#include <vector>
 
 #ifndef VERSION
 #define VERSION "?.?.?.?"
@@ -70,6 +76,79 @@ MainWindow::~MainWindow()
     settings.setValue("geometry", saveGeometry());
 }
 
+namespace
+{
+
+// The conventional uid of the "nobody" pseudo-account. lslogins -u hides it
+// unconditionally, even if it happens to fall inside UID_MIN..UID_MAX.
+constexpr uid_t kNobodyUid = 65534;
+
+struct UidRange
+{
+    uid_t min = 1000;
+    uid_t max = 60000;
+};
+
+// Bounds for a "real" (non-system) account, matching the defaults that
+// `lslogins -u`/adduser/useradd use unless /etc/login.defs overrides them.
+// The file is read once and cached: it doesn't change over the process's
+// lifetime.
+const UidRange &uidRange()
+{
+    static const UidRange range = [] {
+        UidRange result;
+        QFile loginDefs(QStringLiteral("/etc/login.defs"));
+        if (loginDefs.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            while (!loginDefs.atEnd()) {
+                const QString line = QString::fromUtf8(loginDefs.readLine()).trimmed();
+                const QStringList parts = line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+                if (parts.size() < 2) {
+                    continue;
+                }
+                bool ok = false;
+                const qlonglong value = parts.at(1).toLongLong(&ok);
+                if (!ok || value < 0) {
+                    continue;
+                }
+                if (parts.at(0) == QLatin1String("UID_MIN")) {
+                    result.min = static_cast<uid_t>(value);
+                } else if (parts.at(0) == QLatin1String("UID_MAX")) {
+                    result.max = static_cast<uid_t>(value);
+                }
+            }
+        }
+        return result;
+    }();
+    return range;
+}
+
+// The comm (executable) name of every running process, collected in a single
+// /proc scan so callers checking several candidate names don't each pay for
+// their own scan. Note this is an exact match on comm, unlike pgrep's
+// unanchored substring/regex match — fine for the fixed daemon names we look
+// for (lightdm/sddm/plasmalogin), which are never a strict substring match away
+// from something else.
+QSet<QByteArray> runningProcessNames()
+{
+    QSet<QByteArray> names;
+    QDir proc(QStringLiteral("/proc"));
+    const QStringList pids = proc.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QString &pid : pids) {
+        bool isPid = false;
+        pid.toInt(&isPid);
+        if (!isPid) {
+            continue;
+        }
+        QFile commFile(QStringLiteral("/proc/%1/comm").arg(pid));
+        if (commFile.open(QIODevice::ReadOnly)) {
+            names.insert(commFile.readAll().trimmed());
+        }
+    }
+    return names;
+}
+
+} // namespace
+
 void MainWindow::refresh()
 {
     setCursor(QCursor(Qt::ArrowCursor));
@@ -97,9 +176,17 @@ void MainWindow::refresh()
         refreshDelete();
         refreshChangePass();
         refreshRename();
-        users = shell->getOut("lslogins --noheadings -u -o user", QuietMode::Yes)
-                    .split('\n', Qt::SkipEmptyParts);
-        users.removeAll(QStringLiteral("root"));
+        users.clear();
+        {
+            const UidRange &range = uidRange();
+            setpwent();
+            while (const passwd *pw = getpwent()) {
+                if (pw->pw_uid >= range.min && pw->pw_uid <= range.max && pw->pw_uid != kNobodyUid) {
+                    users << QString::fromLocal8Bit(pw->pw_name);
+                }
+            }
+            endpwent();
+        }
         users.sort();
         comboRenameUser->addItems(users);
         comboChangePass->addItems(users);
@@ -111,13 +198,14 @@ void MainWindow::refresh()
 
 DisplayManager MainWindow::detectDisplayManager() const
 {
-    if (QProcess::execute("pgrep", {"lightdm"}) == 0) {
+    const QSet<QByteArray> running = runningProcessNames();
+    if (running.contains("lightdm")) {
         return DisplayManager::Lightdm;
     }
-    if (QProcess::execute("pgrep", {"sddm"}) == 0) {
+    if (running.contains("sddm")) {
         return DisplayManager::Sddm;
     }
-    if (QProcess::execute("pgrep", {"plasmalogin"}) == 0) {
+    if (running.contains("plasmalogin")) {
         return DisplayManager::Plasmalogin;
     }
     return DisplayManager::None;
@@ -389,7 +477,7 @@ void MainWindow::applyAdd()
         return;
     }
     // Check that user name is not already used
-    if (QProcess::execute("grep", {"-E", "^" + userNameEdit->text() + ":", "/etc/passwd"}) == 0) {
+    if (getpwnam(userNameEdit->text().toLocal8Bit().constData()) != nullptr) {
         QMessageBox::critical(this, windowTitle(), tr("Sorry, this name is in use. Please enter a different name."));
         return;
     }
@@ -526,7 +614,7 @@ void MainWindow::applyGroup()
             return;
         }
         // Check that group name is not already used
-        if (QProcess::execute("grep", {"-w", '^' + groupNameEdit->text(), "/etc/group"}) == 0) {
+        if (getgrnam(groupNameEdit->text().toLocal8Bit().constData()) != nullptr) {
             QMessageBox::critical(this, windowTitle(),
                                   tr("Sorry, that group name already exists. Please enter a different name."));
             return;
@@ -635,7 +723,7 @@ void MainWindow::applyRename()
                                  "Please choose another name before proceeding."));
         return;
     }
-    if (QProcess::execute("grep", {"-E", "^" + new_name + ":", "/etc/passwd"}) == 0) {
+    if (getpwnam(new_name.toLocal8Bit().constData()) != nullptr) {
         QMessageBox::critical(this, windowTitle(),
                               tr("Sorry, this name already exists on your system. Please enter a different name."));
         return;
@@ -889,20 +977,34 @@ void MainWindow::buildListGroups()
         item->setCheckState(Qt::Unchecked);
         listGroups->addItem(item);
     }
-    // Check the boxes for the groups that the current user belongs to. Run
-    // via an argument list (not a shell string) so the username can't be
-    // interpreted as shell syntax.
+    // Check the boxes for the groups that the current user belongs to
+    // (primary and supplementary, same set `id -nG` reports).
     const QString user = userComboMembership->currentText();
-    QString out;
     if (!user.isEmpty()) {
-        shell->proc(QStringLiteral("id"), {"-nG", user}, &out, nullptr, QuietMode::Yes);
-    }
-    QStringList out_tok = out.split(' ');
-    while (!out_tok.isEmpty()) {
-        QString text = out_tok.takeFirst().trimmed();
-        auto list = listGroups->findItems(text, Qt::MatchExactly);
-        while (!list.isEmpty()) {
-            list.takeFirst()->setCheckState(Qt::Checked);
+        const QByteArray userUtf8 = user.toLocal8Bit();
+        if (const passwd *pw = getpwnam(userUtf8.constData())) {
+            int ngroups = 32;
+            std::vector<gid_t> gids(static_cast<size_t>(ngroups));
+            int ret = getgrouplist(userUtf8.constData(), pw->pw_gid, gids.data(), &ngroups);
+            if (ret == -1) {
+                gids.resize(static_cast<size_t>(ngroups));
+                ret = getgrouplist(userUtf8.constData(), pw->pw_gid, gids.data(), &ngroups);
+            }
+            // Only trust the buffer once a call actually succeeded: on a second
+            // failure (e.g. membership changing between the two calls), ngroups
+            // may exceed what's meaningfully filled, and blindly resizing/reading
+            // it would offer gid 0 (root) as if the user belonged to it.
+            if (ret != -1) {
+                gids.resize(static_cast<size_t>(ngroups));
+                for (gid_t gid : gids) {
+                    if (const struct group *gr = getgrgid(gid)) {
+                        auto list = listGroups->findItems(QString::fromLocal8Bit(gr->gr_name), Qt::MatchExactly);
+                        while (!list.isEmpty()) {
+                            list.takeFirst()->setCheckState(Qt::Checked);
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -992,11 +1094,13 @@ QString MainWindow::adminGroupName() const
 {
     const QStringList candidateGroups {"sudo", "wheel"};
     for (const auto &group : candidateGroups) {
-        if (QProcess::execute("getent", {"group", group}) == 0) {
+        if (getgrnam(group.toLocal8Bit().constData()) != nullptr) {
             return group;
         }
     }
 
+    // Fall back to reading /etc/group directly: on a live/rescue session NSS
+    // can be unavailable or misconfigured even though the file itself is fine.
     QFile groupFile("/etc/group");
     if (!groupFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return {};
