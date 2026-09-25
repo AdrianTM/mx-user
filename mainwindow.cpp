@@ -79,8 +79,9 @@ MainWindow::~MainWindow()
 namespace
 {
 
-// The conventional uid of the "nobody" pseudo-account. lslogins -u hides it
-// unconditionally, even if it happens to fall inside UID_MIN..UID_MAX.
+// The conventional uid of the "nobody" pseudo-account. lslogins -u only hides
+// it because it lies above the default UID_MAX; exclude it explicitly so it
+// stays hidden even if /etc/login.defs raises UID_MAX past it.
 constexpr uid_t kNobodyUid = 65534;
 
 struct UidRange
@@ -991,14 +992,14 @@ void MainWindow::buildListGroups()
     // (primary and supplementary, same set `id -nG` reports).
     const QString user = userComboMembership->currentText();
     if (!user.isEmpty()) {
-        const QByteArray userUtf8 = user.toLocal8Bit();
-        if (const passwd *pw = getpwnam(userUtf8.constData())) {
+        const QByteArray userLocal8Bit = user.toLocal8Bit();
+        if (const passwd *pw = getpwnam(userLocal8Bit.constData())) {
             int ngroups = 32;
             std::vector<gid_t> gids(static_cast<size_t>(ngroups));
-            int ret = getgrouplist(userUtf8.constData(), pw->pw_gid, gids.data(), &ngroups);
+            int ret = getgrouplist(userLocal8Bit.constData(), pw->pw_gid, gids.data(), &ngroups);
             if (ret == -1) {
                 gids.resize(static_cast<size_t>(ngroups));
-                ret = getgrouplist(userUtf8.constData(), pw->pw_gid, gids.data(), &ngroups);
+                ret = getgrouplist(userLocal8Bit.constData(), pw->pw_gid, gids.data(), &ngroups);
             }
             // Only trust the buffer once a call actually succeeded: on a second
             // failure (e.g. membership changing between the two calls), ngroups
