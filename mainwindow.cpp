@@ -564,6 +564,16 @@ void MainWindow::applyChangePass()
 
 void MainWindow::applyDelete()
 {
+    const QString logname = currentLogname();
+    if (logname == comboDeleteUser->currentText()) {
+        QMessageBox::critical(
+            this, windowTitle(),
+            tr("The selected user name is currently in use.") + "\n\n"
+                + tr("To delete this user, please log out and log back in using another user account."));
+        refresh();
+        return;
+    }
+
     QString msg = tr("This action cannot be undone. Are you sure you want to delete user %1?")
                       .arg(comboDeleteUser->currentText());
     if (QMessageBox::Yes == QMessageBox::warning(this, windowTitle(), msg, QMessageBox::Yes, QMessageBox::No)) {
